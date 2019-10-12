@@ -1,6 +1,10 @@
-import board
-import displayio
 import adafruit_imageload
+import analogio
+import board
+import digitalio
+import displayio
+import time
+from gamepadshift import GamePadShift
 
 display = board.DISPLAY
 
@@ -64,6 +68,17 @@ for x in range(1, 5):
 sprite.x = 110
 sprite.y = 70
 
+# Initialize controller input
+joystick_x = analogio.AnalogIn(board.JOYSTICK_X)
+joystick_y = analogio.AnalogIn(board.JOYSTICK_Y)
+
+pad = GamePadShift(digitalio.DigitalInOut(board.BUTTON_CLOCK),
+                   digitalio.DigitalInOut(board.BUTTON_OUT),
+                   digitalio.DigitalInOut(board.BUTTON_LATCH))
+
 # Add the Group to the Display
-while True:
+while not pad.get_pressed():
+    sprite.x += int((joystick_x.value - 32767) / 5000)
+    sprite.y += int((joystick_y.value - 32767) / 5000)
     display.show(group)
+    time.sleep(0.1)
